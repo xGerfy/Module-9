@@ -41,7 +41,6 @@ abstract class Storage
     abstract function update($item, $slug);
     abstract function delete($slug);
     abstract function list();
-
 }
 abstract class View
 {
@@ -61,7 +60,7 @@ abstract class User
 class FileStorage extends Storage
 {
     public $directory = __DIR__;
-    public function create(TelegraphText $slug)
+    public function create($slug)
     {
         $i = 1;
         $this->$slug .= '_' . date('d/m/y/h/i') . '.txt';
@@ -69,34 +68,35 @@ class FileStorage extends Storage
             while (file_exists($this->$slug . '_' . $i) . '.txt') {
                 $i++;
             }
-            $this->$slug .= '_' . $i;
+            $this->$slug .= '_' . $i . '.txt';
         }
         return $this->$slug;
     }
-    public function read(TelegraphText $slug)
+    public function read($slug)
     {
-        $str = file_get_contents($slug);
-        if (strlen($str) > 0) {
-            $text = unserialize($str);
+        $read = file_get_contents($slug);
+        if (strlen($read) > 0) {
+            $text = unserialize($read);
             return $text;
         }
         return false;
     }
-    public function update(TelegraphText $item, $slug)
+    public function update($item, $slug)
     {
-        $str1 = file_get_contents($slug);
-        if (strlen($str1) > 0) {
-            $text1 = unserialize($str1);
-            return $text1;
+        $update = file_get_contents($slug);
+        if (strlen($update) > 0) {
+            $text = unserialize($update);
+            file_put_contents($text, $item);
+            $text = serialize($text);
+            return $text;
         }
         return false;
     }
-    public function delete(TelegraphText $slug)
+    public function delete($slug)
     {
-        $str2 = file_get_contents($slug);
-        if (strlen($str2) > 0) {
-            $text2 = unserialize($str2);
-            return $text2;
+        $delete = file_get_contents($slug);
+        if (strlen($delete) > 0) {
+            unlink($slug);
         }
         return false;
     }
