@@ -36,7 +36,7 @@ class TelegraphText
 }
 abstract class Storage
 {
-    abstract function create($TelegraphText);
+    abstract function create($object);
     abstract function read($slug);
     abstract function update($item, $slug);
     abstract function delete($slug);
@@ -60,17 +60,19 @@ abstract class User
 class FileStorage extends Storage
 {
     public $directory = __DIR__;
-    public function create($slug)
+    public function create($object)
     {
+        $slug = '_' . date('d/m/y/h/i') . '.txt';
         $i = 1;
-        $this->$slug .= '_' . date('d/m/y/h/i') . '.txt';
-        if (file_exists($this->$slug)) {
-            while (file_exists($this->$slug . '_' . $i) . '.txt') {
+        if (file_exists($slug)) {
+            while (file_exists($object->$slug . '_' . $i) . '.txt') {
                 $i++;
+                file_put_contents($slug, $object);
             }
-            $this->$slug .= '_' . $i . '.txt';
+        } else {
+            $slug .= '_' . $i . '.txt';
         }
-        return $this->$slug;
+        return $slug;
     }
     public function read($slug)
     {
