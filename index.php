@@ -62,17 +62,14 @@ class FileStorage extends Storage
     public $directory = __DIR__;
     public function create($object)
     {
-        $slug = '_' . date('d/m/y/h/i') . '.txt';
+        $fileName = $object->slug . '_' . date('d_m_Y') . '.txt';
+        $object->slug = $fileName;
         $i = 1;
-        if (file_exists($slug)) {
-            while (file_exists($object->$slug . '_' . $i) . '.txt') {
-                $i++;
-                file_put_contents($slug, $object);
-            }
-        } else {
-            $slug .= '_' . $i . '.txt';
+        while (file_exists($object->slug)) {
+            $object->slug = $fileName . '_' . $i++ . '.txt';
         }
-        return $slug;
+        file_put_contents($object->slug, serialize($object));
+        return $object->slug;
     }
     public function read($slug)
     {
@@ -107,3 +104,15 @@ class FileStorage extends Storage
         $search = scandir($this->directory);
     }
 }
+
+$telegraphObj = new TelegraphText("Роман Пономарев", "test_text_file.txt");
+
+$files = new FileStorage();
+
+$telegraphObj->text = "Text";
+$telegraphObj->title = 'Title';
+
+$files->create($telegraphObj);
+
+var_dump($telegraphObj->slug);
+var_dump($files->read($telegraphObj->slug));
